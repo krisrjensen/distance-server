@@ -22,6 +22,21 @@ class VisualizationGenerator:
         self.supported_styles = [
             'default', 'seaborn', 'ggplot', 'dark_background'
         ]
+        # Universal Color Palette - Demo Standards
+        self.universal_colors = {
+            'primary': '#1f77b4',
+            'secondary': '#ff7f0e', 
+            'success': '#2ca02c',
+            'error': '#d62728',
+            'warning': '#ff9800',
+            'info': '#17a2b8',
+            'background': '#ffffff',
+            'text': '#2c3e50'
+        }
+        self.color_sequence = [
+            '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+            '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+        ]
     
     def generate(self, config: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -39,9 +54,15 @@ class VisualizationGenerator:
         if chart_type not in self.supported_chart_types:
             raise ValueError(f"Unsupported chart type: {chart_type}")
         
-        # Set matplotlib style
-        if style in self.supported_styles:
-            plt.style.use(style)
+        # Set matplotlib style with universal color palette
+        plt.style.use('default')  # Start with clean default
+        plt.rcParams['axes.prop_cycle'] = plt.cycler(color=self.color_sequence)
+        plt.rcParams['figure.facecolor'] = self.universal_colors['background']
+        plt.rcParams['axes.facecolor'] = self.universal_colors['background']
+        plt.rcParams['text.color'] = self.universal_colors['text']
+        plt.rcParams['axes.labelcolor'] = self.universal_colors['text']
+        plt.rcParams['xtick.color'] = self.universal_colors['text']
+        plt.rcParams['ytick.color'] = self.universal_colors['text']
         
         # Generate visualization based on chart type
         if chart_type == 'scatter':
@@ -83,10 +104,14 @@ class VisualizationGenerator:
             # Color points based on distances if available
             if distances and len(distances) == len(points):
                 scatter = ax.scatter(x_coords, y_coords, c=distances, 
-                                   cmap='viridis', s=100, alpha=0.7)
-                plt.colorbar(scatter, label='Distance Values')
+                                   cmap='Blues', s=120, alpha=0.8, 
+                                   edgecolors=self.universal_colors['primary'], linewidth=2)
+                cbar = plt.colorbar(scatter, label='Distance Values')
+                cbar.ax.yaxis.label.set_color(self.universal_colors['text'])
             else:
-                ax.scatter(x_coords, y_coords, s=100, alpha=0.7)
+                ax.scatter(x_coords, y_coords, s=120, alpha=0.8, 
+                          color=self.universal_colors['primary'], 
+                          edgecolors=self.universal_colors['text'], linewidth=1.5)
             
             # Add point labels
             for i, (x, y) in enumerate(zip(x_coords, y_coords)):
